@@ -1,0 +1,7 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+clients:
+  fraud-analysis:
+    url: http://wiremock:8089
