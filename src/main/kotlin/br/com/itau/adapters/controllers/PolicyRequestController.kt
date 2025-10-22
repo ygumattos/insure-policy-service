@@ -1,0 +1,27 @@
+package br.com.itau.adapters.controllers
+
+import br.com.itau.adapters.controllers.dtos.CreatePolicyRequestDto
+import br.com.itau.adapters.controllers.dtos.CreatePolicyResponseDto
+import br.com.itau.adapters.controllers.mappers.createPolicyMappers.toDTO
+import br.com.itau.adapters.controllers.mappers.createPolicyMappers.toDomain
+import br.com.itau.application.ports.inputs.InsureReceivedUseCase
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import java.time.Instant
+
+@RestController
+@RequestMapping("/api/v1/policies")
+class PolicyRequestController(
+    private val insureReceivedUseCase: InsureReceivedUseCase
+) {
+
+    @PostMapping("/create")
+    fun createPolicyRequest(
+        @Valid @RequestBody request: CreatePolicyRequestDto
+    ): ResponseEntity<CreatePolicyResponseDto> {
+        val policyRequest = insureReceivedUseCase.execute(request.toDomain())
+        return ResponseEntity.status(HttpStatus.CREATED).body(policyRequest.toDTO(request.customerId))
+    }
+}

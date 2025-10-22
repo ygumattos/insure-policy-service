@@ -2,21 +2,22 @@ package br.com.itau.domain.entities
 
 import br.com.itau.domain.enums.PolicyStatus
 import br.com.itau.domain.valueobjects.PolicyRequestId
+import java.math.BigDecimal
 import java.time.Instant
 import java.util.*
 
-class PolicyRequest private constructor(
-    val id: PolicyRequestId,
-    val customerId: UUID,
-    val productId: UUID,
+class PolicyRequest(
+    val id: String,
+    val customerId: String,
+    val productId: String,
     val category: String,
     val salesChannel: String,
     val paymentMethod: String,
-    val totalMonthlyPremiumAmount: Double,
-    val insuredAmount: Double,
-    val coverages: Map<String, Double>,
+    val totalMonthlyPremiumAmount: BigDecimal,
+    val insuredAmount: BigDecimal,
+    val coverages: Map<String, BigDecimal>,
     val assistances: List<String>,
-    private var status: PolicyStatus,
+    var status: PolicyStatus,
     val createdAt: Instant,
     var finishedAt: Instant?,
     val history: MutableList<StatusHistory>
@@ -24,14 +25,14 @@ class PolicyRequest private constructor(
 
     companion object {
         fun create(command: PolicyCommand): PolicyRequest {
-            require(command.insuredAmount > 0) { "Insured amount must be positive" }
-            require(command.totalMonthlyPremiumAmount > 0) { "Premium amount must be positive" }
+            require(command.insuredAmount > BigDecimal.ZERO) { "Insured amount must be positive" }
+            require(command.totalMonthlyPremiumAmount > BigDecimal.ZERO) { "Premium amount must be positive" }
             require(command.coverages.isNotEmpty()) { "At least one coverage is required" }
 
             val initialHistory = StatusHistory(PolicyStatus.RECEIVED, Instant.now())
 
             return PolicyRequest(
-                id = PolicyRequestId.generate(),
+                id = PolicyRequestId.generate().toString(),
                 customerId = command.customerId,
                 productId = command.productId,
                 category = command.category,
@@ -111,10 +112,4 @@ class PolicyRequest private constructor(
 
     fun isFinalState(): Boolean =
         status == PolicyStatus.APPROVED || status == PolicyStatus.REJECTED || status == PolicyStatus.CANCELLED
-
-    // Get current status safely
-    fun getStatus(): PolicyStatus = status
-
-    // Get read-only history
-    fun getHistory(): List<StatusHistory> = history.toList()
 }

@@ -1,21 +1,22 @@
 package br.com.itau.domain.entities
 
+import java.math.BigDecimal
 import java.util.UUID
 
 data class PolicyCommand(
-    val customerId: UUID,
-    val productId: UUID,
+    val customerId: String,
+    val productId: String,
     val category: String,  // AUTO, LIFE, RESIDENTIAL, etc.
     val salesChannel: String,
     val paymentMethod: String,
-    val totalMonthlyPremiumAmount: Double,
-    val insuredAmount: Double,
-    val coverages: Map<String, Double>,
+    val totalMonthlyPremiumAmount: BigDecimal,
+    val insuredAmount: BigDecimal,
+    val coverages: Map<String, BigDecimal>,
     val assistances: List<String>
 ) {
     init {
-        require(totalMonthlyPremiumAmount > 0) { "Premium amount must be positive" }
-        require(insuredAmount > 0) { "Insured amount must be positive" }
+        require(totalMonthlyPremiumAmount > BigDecimal.ZERO) { "Premium amount must be positive" }
+        require(insuredAmount > BigDecimal.ZERO) { "Insured amount must be positive" }
         require(customerId.toString().isNotBlank()) { "Customer ID cannot be blank" }
     }
 }

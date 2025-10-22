@@ -1,0 +1,180 @@
+{
+  "mappings": [
+    {
+      "name": "Customer ID 21 - REGULAR",
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/fraud/analysis",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.customerId =~ /^21.*/)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "orderId": "{{randomValue type='UUID'}}",
+          "customerId": "{{jsonPath request.body '$.customerId'}}",
+          "analyzedAt": "{{now}}",
+          "classification": "REGULAR",
+          "occurrences": [
+            {
+              "id": "{{randomValue type='UUID'}}",
+              "productId": 10001,
+              "type": "INFO",
+              "description": "No issues found",
+              "createdAt": "{{now offset='-3 days'}}",
+              "updatedAt": "{{now offset='-3 days'}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Customer ID 22 - HIGH_RISK",
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/fraud/analysis",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.customerId =~ /^22.*/)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "orderId": "{{randomValue type='UUID'}}",
+          "customerId": "{{jsonPath request.body '$.customerId'}}",
+          "analyzedAt": "{{now}}",
+          "classification": "HIGH_RISK",
+          "occurrences": [
+            {
+              "id": "{{randomValue type='UUID'}}",
+              "productId": 78900069,
+              "type": "FRAUD",
+              "description": "Attempted fraudulent transaction",
+              "createdAt": "{{now offset='-2 days'}}",
+              "updatedAt": "{{now offset='-2 days'}}"
+            },
+            {
+              "id": "{{randomValue type='UUID'}}",
+              "productId": 104445569,
+              "type": "SUSPICION",
+              "description": "Unusual activity flagged for review",
+              "createdAt": "{{now offset='-5 days'}}",
+              "updatedAt": "{{now offset='-5 days'}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Customer ID 23 - PREFERENTIAL",
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/fraud/analysis",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.customerId =~ /^23.*/)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "orderId": "{{randomValue type='UUID'}}",
+          "customerId": "{{jsonPath request.body '$.customerId'}}",
+          "analyzedAt": "{{now}}",
+          "classification": "PREFERENTIAL",
+          "occurrences": [
+            {
+              "id": "{{randomValue type='UUID'}}",
+              "productId": 30009,
+              "type": "INFO",
+              "description": "Loyal customer - frequent positive interactions",
+              "createdAt": "{{now offset='-10 days'}}",
+              "updatedAt": "{{now offset='-10 days'}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Customer ID 24 - NO_INFORMATION",
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/fraud/analysis",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.customerId =~ /^24.*/)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "orderId": "{{randomValue type='UUID'}}",
+          "customerId": "{{jsonPath request.body '$.customerId'}}",
+          "analyzedAt": "{{now}}",
+          "classification": "NO_INFORMATION",
+          "occurrences": [
+            {
+              "id": "{{randomValue type='UUID'}}",
+              "productId": 90009,
+              "type": "INFO",
+              "description": "New customer - insufficient data",
+              "createdAt": "{{now offset='-1 days'}}",
+              "updatedAt": "{{now offset='-1 days'}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Customer ID 44 - NOT_FOUND",
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/fraud/analysis",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.customerId =~ /^4.*/)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 404,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "error": "Customer not found",
+          "code": "CUSTOMER_404"
+        }
+      }
+    },
+    {
+      "name": "Customer ID 55 - SERVER_ERROR",
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/fraud/analysis",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.customerId =~ /^5.*/)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 500,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "error": "Internal server error",
+          "code": "INTERNAL_ERROR"
+        }
+      }
+    }
+  ]
+}

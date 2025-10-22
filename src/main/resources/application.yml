@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: docker
+
+  application:
+    name: insurance-policy-service
+
+app:
+  fraud-analysis:
+    base-url: http://localhost:8089
