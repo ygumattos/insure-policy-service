@@ -1,4 +1,40 @@
 services:
+  redpanda:
+    image: redpandadata/redpanda:v25.2.9
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --node-id=0
+      - --smp=1
+      - --memory=512M
+      - --reserve-memory=0M
+      - --check=false
+      # Transações no broker (se precisar). Corrigido: sem '=' no --set
+      - --set redpanda.enable_transactions=true
+      # REMOVIDO: enable_idempotence (é do producer, já setamos no Spring)
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:19092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:9092,PLAINTEXT_HOST://localhost:19092
+    ports:
+      - "19092:19092"   # Kafka externo (client local)
+      - "9644:9644"     # Admin API
+    healthcheck:
+      test: ["CMD", "bash", "-c", "rpk cluster info --brokers=redpanda:9092 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redpanda-console:
+    image: redpandadata/console:v3.2.2
+    container_name: redpanda-console
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+    ports:
+      - "8087:8080"
+
   wiremock:
     image: wiremock/wiremock:2.35.0
     ports:
@@ -8,7 +44,6 @@ services:
       - ./wiremock/__files:/home/wiremock/__files
     command: ["--verbose", "--global-response-templating"]
 
-
   postgres:
     image: postgres:15
     environment:
@@ -16,7 +51,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "5433:5432"    # host:container
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -25,15 +60,19 @@ services:
       timeout: 5s
       retries: 10
 
-  # App
   insurance-service:
     build: .
     ports:
-      - "8080:8080"
+      - "8081:8080"    # host:container
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - wiremock
-      - postgres
+      redpanda:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+      wiremock:
+        condition: service_started
+
 volumes:
   pgdata:

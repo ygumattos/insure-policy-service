@@ -1,6 +1,13 @@
 spring:
   main:
     allow-bean-definition-overriding: true
+  kafka:
+    consumer:
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      properties:
+        spring.json.add.type.headers: false
 
 clients:
   fraud-analysis:

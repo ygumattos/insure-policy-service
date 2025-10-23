@@ -1,29 +1,6 @@
 spring:
   profiles:
-    active: docker
+    active: local
 
   application:
     name: insurance-policy-service
-
-app:
-  fraud-analysis:
-    base-url: http://localhost:8089
-
-policy:
-  evaluation:
-    regular:
-      vida-residencial: 500000
-      auto: 350000
-      outros: 255000
-    high-risk:
-      auto: 250000
-      residencial: 150000
-      outros: 125000
-    preferential:
-      vida: 800000
-      auto-residencial: 450000
-      outros: 375000
-    no-info:
-      vida-residencial: 200000
-      auto: 75000
-      outros: 55000

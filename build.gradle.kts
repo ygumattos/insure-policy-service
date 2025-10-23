@@ -37,7 +37,12 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    // Spring Kafka
+    implementation("org.springframework.kafka:spring-kafka")
 
+    // Testcontainers Kafka (p/ testes de integração, se quiser usar depois)
+    testImplementation("org.testcontainers:kafka:1.20.1")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.35.0")
     testImplementation("org.testcontainers:junit-jupiter")

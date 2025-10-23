@@ -1,27 +1,72 @@
 spring:
+  kafka:
+    bootstrap-servers: localhost:19092
+    consumer:
+      group-id: insure-policy-service-local
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: "br.com.itau.domain.events,*"
+
+    producer:
+      acks: all
+      retries: 10
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        compression.type: lz4
+
+    listener:
+      ack-mode: RECORD
+      missing-topics-fatal: false
+
   datasource:
-    url: jdbc:h2:mem:insurance_db
-    username: sa
-    password: ""
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://localhost:5433/insurance_db   # <— porta do host
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: true
     properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-        format_sql: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+      hibernate.jdbc.time_zone: UTC
 
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 app:
   fraud-analysis:
     base-url: http://localhost:8089
-
 logging:
   level:
-    br.com.itau: DEBUG
-    org.hibernate.SQL: DEBUG
+    org.flywaydb: WARN
+    org.springframework.jdbc: INFO
+    org.apache.kafka: WARN
+    org.springframework.kafka: INFO
+
+policy:
+  evaluation:
+    regular:
+      vida-residencial: 500000
+      auto: 350000
+      outros: 255000
+    high-risk:
+      auto: 250000
+      residencial: 150000
+      outros: 125000
+    preferential:
+      vida: 800000
+      auto-residencial: 450000
+      outros: 375000
+    no-info:
+      vida-residencial: 200000
+      auto: 75000
+      outros: 55000

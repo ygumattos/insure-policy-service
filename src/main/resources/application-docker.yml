@@ -1,6 +1,32 @@
 spring:
+  kafka:
+    bootstrap-servers: redpanda:9092
+    consumer:
+      group-id: insure-policy-service
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: "br.com.itau.domain.events,*"
+
+    producer:
+      acks: all
+      retries: 10
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        compression.type: lz4
+
+    listener:
+      ack-mode: RECORD
+      missing-topics-fatal: false
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/insurance_db
+    url: jdbc:postgresql://postgres:5432/insurance_db   # <— AQUI é o ajuste
     username: user
     password: password
     driver-class-name: org.postgresql.Driver
@@ -10,19 +36,24 @@ spring:
       ddl-auto: validate
     show-sql: true
     properties:
-      hibernate:
-        jdbc:
-          time_zone: UTC
+      hibernate.jdbc.time_zone: UTC
 
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+app:
+  fraud-analysis:
+    base-url: http://localhost:8089
+
 logging:
   level:
     org.flywaydb: DEBUG
     org.springframework.jdbc: DEBUG
+    org.apache.kafka: WARN
+    org.springframework.kafka: INFO
+
 policy:
   evaluation:
     regular:
