@@ -4,7 +4,6 @@ import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import java.math.BigDecimal
 import java.time.Instant
-import java.util.*
 
 @Entity
 @Table(name = "policy_requests")
@@ -35,6 +34,9 @@ class PolicyRequestEntity(
 
     @Column(nullable = false, length = 20)
     val status: String,
+
+    @Column()
+    val classification: String? = null,
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

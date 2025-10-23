@@ -1,7 +1,6 @@
 package br.com.itau.domain.entities
 
 import java.math.BigDecimal
-import java.util.UUID
 
 data class PolicyCommand(
     val customerId: String,
@@ -17,6 +16,6 @@ data class PolicyCommand(
     init {
         require(totalMonthlyPremiumAmount > BigDecimal.ZERO) { "Premium amount must be positive" }
         require(insuredAmount > BigDecimal.ZERO) { "Insured amount must be positive" }
-        require(customerId.toString().isNotBlank()) { "Customer ID cannot be blank" }
+        require(customerId.isNotBlank()) { "Customer ID cannot be blank" }
     }
 }

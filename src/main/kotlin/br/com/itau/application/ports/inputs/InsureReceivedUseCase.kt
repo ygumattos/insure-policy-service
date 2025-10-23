@@ -4,5 +4,6 @@ import br.com.itau.domain.entities.PolicyCommand
 import br.com.itau.domain.entities.PolicyRequest
 
 interface InsureReceivedUseCase {
-    fun execute(command: PolicyCommand): PolicyRequest
+    fun create(command: PolicyCommand): PolicyRequest
+    fun getById(policyRequestId: String): PolicyRequest
 }

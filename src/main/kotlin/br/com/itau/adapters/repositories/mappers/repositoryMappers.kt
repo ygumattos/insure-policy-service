@@ -6,6 +6,8 @@ import br.com.itau.adapters.repositories.entities.PolicyRequestEntity
 import br.com.itau.adapters.repositories.entities.StatusHistoryEntity
 import br.com.itau.domain.entities.PolicyRequest
 import br.com.itau.domain.entities.StatusHistory
+import br.com.itau.domain.enums.CustomerClassification
+import br.com.itau.domain.enums.InsuranceCategory
 import br.com.itau.domain.enums.PolicyStatus
 import java.util.UUID
 
@@ -15,11 +17,12 @@ object repositoryMappers {
             id = this.id,
             customerId = this.customerId,
             productId = this.productId,
-            category = this.category,
+            category = InsuranceCategory.from(this.category),
             salesChannel = this.salesChannel,
             paymentMethod = this.paymentMethod,
             totalMonthlyPremiumAmount = this.totalMonthlyPremiumAmount,
             insuredAmount = this.insuredAmount,
+            classification = this.classification?.let { CustomerClassification.valueOf(it) },
             coverages = this.coverages.associate { it.coverageName to it.coverageValue },
             assistances = this.assistances.map { it.assistanceName },
             status = PolicyStatus.valueOf(this.status),
@@ -36,20 +39,20 @@ object repositoryMappers {
 
     fun PolicyRequest.toEntity(): PolicyRequestEntity {
         val entity = PolicyRequestEntity(
-            id = this.id.toString(),
+            id = this.id,
             customerId = this.customerId,
             productId = this.productId,
-            category = this.category,
+            category = this.category.toString(),
             salesChannel = this.salesChannel,
             paymentMethod = this.paymentMethod,
             totalMonthlyPremiumAmount = this.totalMonthlyPremiumAmount,
             insuredAmount = this.insuredAmount,
             status = this.status.toString(),
             createdAt = this.createdAt,
-            finishedAt = this.finishedAt
+            finishedAt = this.finishedAt,
+            classification = this.classification?.toString()
         )
 
-        // Mapear coverages
         this.coverages.forEach { (coverageName, coverageValue) ->
             entity.coverages.add(
                 CoverageEntity(
@@ -61,7 +64,6 @@ object repositoryMappers {
             )
         }
 
-        // Mapear assistances
         this.assistances.forEach { assistanceName ->
             entity.assistances.add(
                 AssistanceEntity(
@@ -72,7 +74,6 @@ object repositoryMappers {
             )
         }
 
-        // Mapear status history
         this.history.forEach { statusHistory ->
             entity.statusHistory.add(
                 StatusHistoryEntity(
@@ -87,7 +88,6 @@ object repositoryMappers {
         return entity
     }
 
-    // Helper function para criar Entity a partir de Domain
     fun PolicyRequestEntity.fromDomain(policyRequest: PolicyRequest): PolicyRequestEntity {
         return policyRequest.toEntity()
     }

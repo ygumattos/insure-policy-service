@@ -2,10 +2,9 @@ package br.com.itau.adapters.controllers.mappers
 
 import br.com.itau.adapters.controllers.dtos.CreatePolicyRequestDto
 import br.com.itau.adapters.controllers.dtos.CreatePolicyResponseDto
+import br.com.itau.adapters.controllers.dtos.PolicyResponseDto
 import br.com.itau.domain.entities.PolicyCommand
 import br.com.itau.domain.entities.PolicyRequest
-import java.math.BigDecimal
-import java.time.Instant
 
 object createPolicyMappers {
     fun CreatePolicyRequestDto.toDomain() : PolicyCommand =
@@ -21,18 +20,25 @@ object createPolicyMappers {
             assistances = this.assistances
         )
 
-    fun PolicyRequest.toDTO(customerId: String) : CreatePolicyResponseDto =
+    fun PolicyRequest.toCreateDTO(): CreatePolicyResponseDto =
         CreatePolicyResponseDto(
-            id = this.id.toString(),
+            id = this.id,
+            createdAt = this.createdAt
+        )
+
+    fun PolicyRequest.toDTO() : PolicyResponseDto =
+        PolicyResponseDto(
+            id = this.id,
             customerId = this.customerId,
             productId = this.productId,
-            category = this.category,
+            category = this.category.toString(),
             salesChannel = this.salesChannel,
             paymentMethod = this.paymentMethod,
             totalMonthlyPremiumAmount = this.totalMonthlyPremiumAmount,
             insuredAmount = this.insuredAmount,
             coverages = this.coverages,
             assistances = this.assistances,
+            classification = this.classification?.name,
             status = this.status,
             createdAt = this.createdAt,
             finishedAt = this.finishedAt,
