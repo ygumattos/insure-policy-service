@@ -50,7 +50,7 @@ class InsureReceivedUseCaseImpl(
                 policyRequestRepository.save(policyRequestValidated)
             }
 
-            policyStatusChangedEventProducer.publish(policyRequestValidated)
+            policyStatusChangedEventProducer.publish(policyRequestValidated.createSnapShot())
             log.info("Policy send to StatusChanged queue successfully. ID: {}", policyRequestValidated.id)
 
             return policyRequestValidated

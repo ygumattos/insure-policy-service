@@ -5,7 +5,9 @@ import br.com.itau.adapters.messaging.kafka.producers.mappers.producerMappers.to
 import br.com.itau.application.common.logging.Logging
 import br.com.itau.application.ports.outputs.PolicyStatusChangedEventProducer
 import br.com.itau.domain.entities.PolicyRequest
+import br.com.itau.domain.entities.PolicyRequest.PolicyStatusSnapshot
 import br.com.itau.domain.events.PolicyStatusChangedEvent
+import br.com.itau.domain.views.PolicyStatusWithHistoryView
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
@@ -16,7 +18,7 @@ class PolicyStatusChangedEventProducer(
     private val kafkaTemplate: KafkaTemplate<String, PolicyStatusChangedEvent>
 ): PolicyStatusChangedEventProducer, Logging {
 
-    override fun publish(event: PolicyRequest) {
+    override fun publish(event: PolicyStatusSnapshot) {
         val policyEventProducerData = event.toProducerDTO()
         val key = policyEventProducerData.eventData.id
 

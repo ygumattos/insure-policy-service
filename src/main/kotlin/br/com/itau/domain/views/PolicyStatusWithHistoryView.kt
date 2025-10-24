@@ -1,4 +1,4 @@
-package br.com.itau.adapters.repositories.views
+package br.com.itau.domain.views
 
 import br.com.itau.domain.enums.PolicyStatus
 import java.time.Instant

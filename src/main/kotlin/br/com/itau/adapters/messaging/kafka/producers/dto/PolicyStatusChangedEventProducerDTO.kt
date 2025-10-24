@@ -1,15 +1,12 @@
 package br.com.itau.adapters.messaging.kafka.producers.dto
 
-import java.math.BigDecimal
+import br.com.itau.domain.enums.PolicyStatus
+import java.time.Instant
 
 data class PolicyStatusChangedEventProducerDTO(
     val id: String,
-    val customerId: String,
-    val productId: String,
-    val category: String,
-    val status: String,
-    val paymentMethod: String,
-    val totalMonthlyPremiumAmount: BigDecimal,
-    val insuredAmount: BigDecimal,
-    val classification: String
+    val status: PolicyStatus,
+    val paymentConfirmation: Boolean?,
+    val subscriptionAuthorization: Boolean?,
+    val finishedAt: Instant?
 )

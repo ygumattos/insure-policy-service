@@ -3,6 +3,7 @@ package br.com.itau.application.usecase
 import br.com.itau.application.common.logging.Logging
 import br.com.itau.application.ports.inputs.ProcessValidationEventUseCase
 import br.com.itau.application.ports.outputs.PolicyRequestRepository
+import br.com.itau.application.ports.outputs.PolicyStatusChangedEventProducer
 import br.com.itau.domain.enums.PolicyStatus
 import br.com.itau.domain.events.ValidationCommand
 import br.com.itau.domain.events.ValidationKind.*
@@ -12,6 +13,7 @@ import java.time.Instant
 @Service
 class ProcessValidationEventUseCaseImpl(
     private val repository: PolicyRequestRepository,
+    private val policyStatusChangedEventProducer: PolicyStatusChangedEventProducer
 ): Logging, ProcessValidationEventUseCase {
 
     override fun handle(command: ValidationCommand) {
@@ -46,12 +48,22 @@ class ProcessValidationEventUseCaseImpl(
 
         val dateFinishAt = if (newStatus == PolicyStatus.PENDING) null else now
 
-        when (command.kind) {
-            PAYMENT -> repository.updatePaymentAndStatus(command.policyId, true, newStatus.name, dateFinishAt)
-            SUBSCRIPTION ->  repository.updateSubscriptionAndStatus(command.policyId, true, newStatus.name, dateFinishAt)
-        }
+        val snapshotUpdated =
+            when (command.kind) {
+                PAYMENT -> {
+                    repository.updatePaymentAndStatus(command.policyId, true, newStatus.name, dateFinishAt)
+                    snapshot.copy(status = newStatus, paymentConfirmation = true, finishedAt = dateFinishAt)
+                }
+                SUBSCRIPTION ->  {
+                    repository.updateSubscriptionAndStatus(command.policyId, true, newStatus.name, dateFinishAt)
+                    snapshot.copy(status = newStatus, subscriptionAutorization = true, finishedAt = dateFinishAt)
+                }
+            }
 
         repository.appendStatusHistory(command.policyId, newStatus.name, now)
         log.info("status changed id={} -> {}", command.policyId, newStatus)
+
+        policyStatusChangedEventProducer.publish(snapshotUpdated)
+        log.info("Policy send to StatusChanged queue successfully. ID: {}", snapshot.id)
     }
 }

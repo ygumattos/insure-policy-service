@@ -6,6 +6,7 @@ import br.com.itau.domain.enums.PolicyStatus
 import br.com.itau.domain.valueobjects.PolicyRequestId
 import java.math.BigDecimal
 import java.time.Instant
+import kotlin.String
 
 class PolicyRequest(
     val id: String,
@@ -57,6 +58,16 @@ class PolicyRequest(
             )
         }
     }
+
+    fun createSnapShot(): PolicyStatusSnapshot =
+        PolicyStatusSnapshot(
+            id = this.id,
+            status = this.status,
+            paymentConfirmation = this.validatedFlags.paymentConfirmation,
+            subscriptionAutorization = this.validatedFlags.subscriptionAutorization,
+            finishedAt = this.finishedAt,
+            history = this.history
+        )
 
     fun putClassification(classification: CustomerClassification): PolicyRequest {
         this.classification = classification

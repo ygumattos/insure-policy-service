@@ -16,6 +16,6 @@ object eventMappers {
         ValidationCommand(
             policyId = this.id,
             kind = ValidationKind.SUBSCRIPTION,
-            value = this.subscriptionAutorization
+            value = this.subscriptionAuthorization
         )
 }
