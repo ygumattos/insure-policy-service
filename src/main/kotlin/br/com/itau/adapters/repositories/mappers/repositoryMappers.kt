@@ -17,7 +17,7 @@ object repositoryMappers {
             id = this.id,
             status = PolicyStatus.valueOf(this.status),
             paymentConfirmation = this.paymentConfirmation,
-            subscriptionAutorization = this.subscriptionAutorization,
+            subscriptionAutorization = this.subscriptionAuthorization,
             finishedAt = this.finishedAt,
             history = this.statusHistory.map {
                 StatusHistory(
@@ -50,7 +50,7 @@ object repositoryMappers {
             }.toMutableList(),
             validatedFlags = PolicyRequest.Flags(
                 paymentConfirmation = this.paymentConfirmation,
-                subscriptionAutorization = this.subscriptionAutorization
+                subscriptionAutorization = this.subscriptionAuthorization
             )
         )
     }
@@ -70,7 +70,7 @@ object repositoryMappers {
             finishedAt = this.finishedAt,
             classification = this.classification?.toString(),
             paymentConfirmation = this.validatedFlags.paymentConfirmation,
-            subscriptionAutorization = this.validatedFlags.subscriptionAutorization
+            subscriptionAuthorization = this.validatedFlags.subscriptionAutorization
         )
 
         this.coverages.forEach { (coverageName, coverageValue) ->

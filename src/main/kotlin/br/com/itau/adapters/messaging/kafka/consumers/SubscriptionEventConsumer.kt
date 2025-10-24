@@ -1,7 +1,7 @@
 package br.com.itau.adapters.messaging.kafka.consumers
 
-import br.com.itau.adapters.messaging.kafka.config.KafkaTopicsConfig.Companion.PAYMENT_EVENTS
-import br.com.itau.adapters.messaging.kafka.consumers.dto.PaymentEventMessage
+import br.com.itau.adapters.messaging.kafka.config.KafkaTopicsConfig.Companion.SUBSCRIPTION_EVENTS
+import br.com.itau.adapters.messaging.kafka.consumers.dto.SubscriptionEventMessage
 import br.com.itau.adapters.messaging.kafka.consumers.mappers.eventMappers.toCommand
 import br.com.itau.application.common.logging.Logging
 import br.com.itau.application.ports.inputs.ProcessValidationEventUseCase
@@ -12,19 +12,19 @@ import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
 
 @Component
-class PaymentEventConsumer(
+class SubscriptionEventConsumer(
     private val processValidationEvent: ProcessValidationEventUseCase
 ): Logging {
     @KafkaListener(
-        topics = [PAYMENT_EVENTS],
+        topics = [SUBSCRIPTION_EVENTS],
         groupId = "insure-policy-service",
-        containerFactory = "paymentKafkaListenerContainerFactory"
+        containerFactory = "subscriptionKafkaListenerContainerFactory"
     )
     fun onMessage(
-        @Payload message: PaymentEventMessage,
+        @Payload message: SubscriptionEventMessage,
         @Header(KafkaHeaders.RECEIVED_KEY) key: String?
     ) {
-        log.info("payment-event received key={} message={}", key, message)
+        log.info("subscription-event received key={} message={}", key, message)
         processValidationEvent.handle(message.toCommand())
     }
 }

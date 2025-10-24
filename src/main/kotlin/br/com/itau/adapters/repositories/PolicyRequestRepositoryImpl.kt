@@ -29,7 +29,7 @@ class PolicyRequestRepositoryImpl(
         return entity.toDomain()
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     override fun findStatusWithHistoryById(id: String): PolicyRequest.PolicyStatusSnapshot? {
         val entity = jpaRepository.findWithHistoryById(id).orElse(null) ?: return null
         return entity.toSnapshot()
@@ -39,15 +39,24 @@ class PolicyRequestRepositoryImpl(
     override fun updatePaymentAndStatus(
         id: String,
         payment: Boolean?,
-        status: PolicyStatus,
+        status: String,
         finishedAt: Instant?
-    ): Int = jpaRepository.updatePaymentAndStatus(id, payment, status, finishedAt)
+    ) {
+        jpaRepository.updatePaymentAndStatus(id, payment, status, finishedAt)
+    }
 
     @Transactional
-    override fun updatePaymentOnly(id: String, payment: Boolean): Int =
-        jpaRepository.updatePaymentOnly(id, payment)
+    override fun appendStatusHistory(id: String, newStatus: String, changedAt: Instant) {
+        jpaHistoryRepository.insertOne(id, newStatus, changedAt)
+    }
 
     @Transactional
-    override fun appendStatusHistory(id: String, newStatus: PolicyStatus, changedAt: Instant): Int =
-        jpaHistoryRepository.insertOne(id, newStatus.name, changedAt)
+    override fun updateSubscriptionAndStatus(
+        id: String,
+        subscription: Boolean?,
+        status: String,
+        finishedAt: Instant?
+    ) {
+        jpaRepository.updateSubscriptionAndStatus(id, subscription, status, finishedAt)
+    }
 }

@@ -31,18 +31,24 @@ interface PolicyRequestJpaRepository : JpaRepository<PolicyRequestEntity, String
     fun updatePaymentAndStatus(
         @Param("id") id: String,
         @Param("payment") payment: Boolean?,
-        @Param("status") status: PolicyStatus,
+        @Param("status") status: String,
         @Param("finishedAt") finishedAt: Instant?
-    ): Int
+    )
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
       update PolicyRequestEntity p
-      set p.paymentConfirmation = :payment
+      set p.subscriptionAuthorization = :subscription,
+          p.status = :status,
+          p.finishedAt = :finishedAt
       where p.id = :id
     """)
-    fun updatePaymentOnly(
+    fun updateSubscriptionAndStatus(
         @Param("id") id: String,
-        @Param("payment") payment: Boolean
+        @Param("subscription") subscription: Boolean?,
+        @Param("status") status: String,
+        @Param("finishedAt") finishedAt: Instant?
     ): Int
+
+
 }

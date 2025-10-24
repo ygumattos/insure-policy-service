@@ -42,7 +42,7 @@ class PolicyRequestEntity(
     var paymentConfirmation: Boolean? = null,
 
     @Column(name = "subscription_authorization")
-    var subscriptionAutorization: Boolean? = null,
+    var subscriptionAuthorization: Boolean? = null,
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -58,7 +58,6 @@ class PolicyRequestEntity(
     val assistances: MutableList<AssistanceEntity> = mutableListOf(),
 
     @OneToMany(mappedBy = "policyRequest", cascade = [CascadeType.ALL], orphanRemoval = true)
-    @OrderBy("changedAt ASC")
     val statusHistory: MutableList<StatusHistoryEntity> = mutableListOf()
 )
 

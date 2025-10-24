@@ -1,6 +1,7 @@
 package br.com.itau.adapters.messaging.kafka.config
 
 import br.com.itau.adapters.messaging.kafka.consumers.dto.PaymentEventMessage
+import br.com.itau.adapters.messaging.kafka.consumers.dto.SubscriptionEventMessage
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -17,6 +18,7 @@ class KafkaTopicsConfig {
     companion object {
         const val POLICY_STATUS_CHANGED = "policy-status-changed"
         const val PAYMENT_EVENTS = "payment-events"
+        const val SUBSCRIPTION_EVENTS = "subscription-events"
     }
 
     @Bean
@@ -26,6 +28,10 @@ class KafkaTopicsConfig {
     @Bean
     fun paymentEventsTopic(): NewTopic =
         NewTopic(PAYMENT_EVENTS, 1, 1.toShort())
+
+    @Bean
+    fun subscriptionEventsTopic(): NewTopic =
+        NewTopic(SUBSCRIPTION_EVENTS, 1, 1.toShort())
 
     @Bean
     fun paymentKafkaListenerContainerFactory(
@@ -43,6 +49,26 @@ class KafkaTopicsConfig {
             props,
             StringDeserializer(),
             JsonDeserializer(PaymentEventMessage::class.java)
+        )
+        return factory
+    }
+
+    @Bean
+    fun subscriptionKafkaListenerContainerFactory(
+        @Value("\${spring.kafka.bootstrap-servers}") brokers: String
+    ): ConcurrentKafkaListenerContainerFactory<String, SubscriptionEventMessage> {
+        val props = mapOf(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to brokers,
+            ConsumerConfig.GROUP_ID_CONFIG to "insure-policy-service",
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+            JsonDeserializer.TRUSTED_PACKAGES to "br.com.itau.*",
+            JsonDeserializer.USE_TYPE_INFO_HEADERS to false
+        )
+        val factory = ConcurrentKafkaListenerContainerFactory<String, SubscriptionEventMessage>()
+        factory.consumerFactory = DefaultKafkaConsumerFactory(
+            props,
+            StringDeserializer(),
+            JsonDeserializer(SubscriptionEventMessage::class.java)
         )
         return factory
     }
