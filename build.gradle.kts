@@ -37,7 +37,6 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-    // Spring Kafka
     implementation("org.springframework.kafka:spring-kafka")
 
     testImplementation("org.testcontainers:kafka:1.20.1")
