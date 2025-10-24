@@ -45,7 +45,8 @@ Use cases principais:
 
 Mensageria:
 - Producer: eventos de **status-changed**
-- Consumers: **payment-events** e **subscription-events** (atualizam flags e podem aprovar a apólice)
+- Consumers: 
+  - **payment-events** e **subscription-events** (atualizam flags e podem aprovar a apólice)
 
 ---
 
@@ -53,7 +54,12 @@ Mensageria:
 
 Pré-requisitos:
 - Docker e Docker Compose
-- Portas livres: **8080** (API), **8089** (WireMock), **5432** (Postgres), **19092/9092** (Kafka), **8087** (Redpanda Console)
+- Portas livres: 
+  - **8080** (API), 
+  - **8089** (WireMock), 
+  - **5432** (Postgres), 
+  - **19092/9092** (Kafka),
+  - **8087** (Redpanda Console)
 
 1) **Build do projeto**
 ```bash
@@ -95,12 +101,12 @@ Base path: `/api/v1`
 }
 ```
 **Classificação de fraude (WireMock) por prefixo de customerId:**
-21^ → REGULAR
-22^ → HIGH_RISK
-23^ → PREFERENTIAL
-24^ → NO_INFORMATION
-44^ → NOT_FOUND (404)
-55^ → SERVER_ERROR (500)
+- 21^ → REGULAR
+- 22^ → HIGH_RISK
+- 23^ → PREFERENTIAL
+- 24^ → NO_INFORMATION
+- 44^ → NOT_FOUND (404)
+- 55^ → SERVER_ERROR (500)
 
 ### Buscar por ID
 GET `/policies/{id}`
@@ -121,7 +127,7 @@ Tópicos:
       ```
   - subscription-events → subscriptionAutorization
     - ```json
-      { "id": "UUID", "subscriptionAutorization": true }
+      { "id": "UUID", "subscriptionAuthorization": true }
       ```
 
 Console: http://localhost:8087/overview

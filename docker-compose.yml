@@ -11,14 +11,12 @@ services:
       - --memory=512M
       - --reserve-memory=0M
       - --check=false
-      # Transações no broker (se precisar). Corrigido: sem '=' no --set
       - --set redpanda.enable_transactions=true
-      # REMOVIDO: enable_idempotence (é do producer, já setamos no Spring)
       - --kafka-addr=PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:19092
       - --advertise-kafka-addr=PLAINTEXT://redpanda:9092,PLAINTEXT_HOST://localhost:19092
     ports:
-      - "19092:19092"   # Kafka externo (client local)
-      - "9644:9644"     # Admin API
+      - "19092:19092"
+      - "9644:9644"
     healthcheck:
       test: ["CMD", "bash", "-c", "rpk cluster info --brokers=redpanda:9092 || exit 1"]
       interval: 5s
@@ -51,7 +49,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:
-      - "5433:5432"    # host:container
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -61,16 +59,20 @@ services:
       retries: 10
 
   insurance-service:
-    build: .
-    ports:
-      - "8081:8080"    # host:container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: insurance-policy-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      TZ: UTC
+    ports:
+      - "8080:8080"
     depends_on:
       redpanda:
         condition: service_healthy
       postgres:
-        condition: service_started
+        condition: service_healthy
       wiremock:
         condition: service_started
 

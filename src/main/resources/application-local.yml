@@ -28,7 +28,7 @@ spring:
       missing-topics-fatal: false
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/insurance_db   # <— porta do host
+    url: jdbc:postgresql://localhost:5433/insurance_db
     username: user
     password: password
     driver-class-name: org.postgresql.Driver

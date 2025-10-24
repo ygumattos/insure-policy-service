@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.jpa") version "1.9.23"
@@ -6,6 +8,10 @@ plugins {
     id("org.springframework.boot") version "3.2.3"
     id("io.spring.dependency-management") version "1.1.4"
     id("jacoco")
+}
+
+tasks.named<BootJar>("bootJar") {
+    archiveFileName.set("app.jar")
 }
 
 allOpen {
@@ -66,22 +72,31 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+
     reports {
-        xml.required.set(true)
         html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
     }
+
     classDirectories.setFrom(
         files(classDirectories.files.map {
             fileTree(it) {
                 exclude(
                     "**/domain/enums/**",
                     "**/domain/valueobjects/**",
-                    "**/api/dto/**",
                     "**/adapters/config/**",
-                    "**/interfaces/**",
-                    "**/*Enum.class",
+                    "**/*Application*.class",
                     "**/*Dto.class",
-                    "**/*Mapper.class"
+                    "**/*DTO.class",
+                    "**/*Request.class",
+                    "**/*Response.class",
+                    "**/*Mapper.class",
+                    "**/*MapperKt.class",
+                    "**/*Mappers.class",
+                    "**/*MappersKt.class",
+                    "**/mappers/**",
+                    "**/adapters/**/dto/**"
                 )
             }
         })

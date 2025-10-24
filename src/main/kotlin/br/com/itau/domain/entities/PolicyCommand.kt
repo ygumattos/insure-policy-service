@@ -5,7 +5,7 @@ import java.math.BigDecimal
 data class PolicyCommand(
     val customerId: String,
     val productId: String,
-    val category: String,  // AUTO, LIFE, RESIDENTIAL, etc.
+    val category: String,
     val salesChannel: String,
     val paymentMethod: String,
     val totalMonthlyPremiumAmount: BigDecimal,

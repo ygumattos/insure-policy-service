@@ -43,10 +43,8 @@ class FraudAnalysisClient(
     }
 }
 
-// Exceção específica do domínio para fraud analysis
 class FraudAnalysisException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
-// DTOs internos
 private data class FraudAnalysisRequest(
     val customerId: String
 )
