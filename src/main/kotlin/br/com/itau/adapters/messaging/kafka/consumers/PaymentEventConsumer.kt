@@ -1,31 +1,32 @@
 package br.com.itau.adapters.messaging.kafka.consumers
 
 import br.com.itau.adapters.messaging.kafka.config.KafkaTopicsConfig.Companion.PAYMENT_EVENTS
-import br.com.itau.domain.events.PaymentEvent
+import br.com.itau.adapters.messaging.kafka.consumers.dto.PaymentEventMessage
+import br.com.itau.adapters.messaging.kafka.consumers.mappers.paymentEventMappers.toCommand
+import br.com.itau.application.common.logging.Logging
+import br.com.itau.application.ports.inputs.ProcessPaymentEventUseCase
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
-import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.stereotype.Component
 
 @Component
-class PaymentEventConsumer {
-
-    private val log = LoggerFactory.getLogger(javaClass)
+class PaymentEventConsumer(
+    private val useCase: ProcessPaymentEventUseCase
+): Logging {
 
     @KafkaListener(
         topics = [PAYMENT_EVENTS],
-        groupId = "insure-policy-service"   // mesmo group p/ todos consumidores dessa app
+        groupId = "insure-policy-service",
+        containerFactory = "paymentKafkaListenerContainerFactory"
     )
     fun onMessage(
-        @Payload payload: PaymentEvent,
+        @Payload message: PaymentEventMessage,
         @Header(KafkaHeaders.RECEIVED_KEY) key: String?
     ) {
-        log.info("payment-event received key={} payload={}", key, payload)
-
-        // aqui você chama seus usecases.
-        // ex.: if (payload.status == "PAID") policyStatusUseCase.moveToPending(...)
-        // mantive simples para não acoplar agora.
+        log.info("payment-event received key={} message={}", key, message)
+        useCase.handle(message.toCommand())
     }
 }

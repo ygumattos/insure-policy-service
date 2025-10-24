@@ -10,6 +10,7 @@ spring:
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.trusted.packages: "br.com.itau.domain.events,*"
+        spring.json.use.type.headers: true
 
     producer:
       acks: all
@@ -20,6 +21,7 @@ spring:
         enable.idempotence: true
         linger.ms: 5
         compression.type: lz4
+        spring.json.use.type.headers: true
 
     listener:
       ack-mode: RECORD

@@ -22,7 +22,8 @@ class PolicyRequest(
     var status: PolicyStatus,
     val createdAt: Instant,
     var finishedAt: Instant?,
-    val history: MutableList<StatusHistory>
+    val history: MutableList<StatusHistory>,
+    val validatedFlags: Flags,
 ) {
 
     companion object {
@@ -48,7 +49,11 @@ class PolicyRequest(
                 createdAt = Instant.now(),
                 classification = null,
                 finishedAt = null,
-                history = mutableListOf(initialHistory)
+                history = mutableListOf(initialHistory),
+                validatedFlags = Flags(
+                    null,
+                    null
+                )
             )
         }
     }
@@ -64,61 +69,18 @@ class PolicyRequest(
     fun isFinalState(): Boolean =
         status == PolicyStatus.APPROVED || status == PolicyStatus.REJECTED || status == PolicyStatus.CANCELLED
 
-//
-//    fun validate(classification: CustomerClassification): PolicyRequest {
-//        require(status == PolicyStatus.RECEIVED) {
-//            "Only RECEIVED policies can be validated. Current status: $status"
-//        }
-//
-//        this.classification = classification
-//        this.status = PolicyStatus.VALIDATED
-//        this.history.add(StatusHistory(PolicyStatus.VALIDATED, Instant.now()))
-//        return this
-//    }
-//
-//    fun moveToPending(): PolicyRequest {
-//        require(status == PolicyStatus.VALIDATED) {
-//            "Only VALIDATED policies can move to PENDING. Current status: $status"
-//        }
-//
-//        this.status = PolicyStatus.PENDING
-//        this.history.add(StatusHistory(PolicyStatus.PENDING, Instant.now()))
-//        return this
-//    }
-//
-//    fun approve(): PolicyRequest {
-//        require(status == PolicyStatus.PENDING) {
-//            "Only PENDING policies can be APPROVED. Current status: $status"
-//        }
-//
-//        this.status = PolicyStatus.APPROVED
-//        this.finishedAt = Instant.now()
-//        this.history.add(StatusHistory(PolicyStatus.APPROVED, Instant.now()))
-//        return this
-//    }
-//
-//    fun reject(): PolicyRequest {
-//        require(status == PolicyStatus.RECEIVED || status == PolicyStatus.VALIDATED || status == PolicyStatus.PENDING) {
-//            "Cannot reject policy with status: $status"
-//        }
-//
-//        this.status = PolicyStatus.REJECTED
-//        this.finishedAt = Instant.now()
-//        this.history.add(StatusHistory(PolicyStatus.REJECTED, Instant.now()))
-//        return this
-//    }
-//
-//    fun cancel(): PolicyRequest {
-//        require(status != PolicyStatus.APPROVED && status != PolicyStatus.REJECTED) {
-//            "Cannot cancel policy with status: $status"
-//        }
-//        require(status != PolicyStatus.CANCELLED) {
-//            "Policy is already CANCELLED"
-//        }
-//
-//        this.status = PolicyStatus.CANCELLED
-//        this.finishedAt = Instant.now()
-//        this.history.add(StatusHistory(PolicyStatus.CANCELLED, Instant.now()))
-//        return this
-//    }
+    data class Flags(
+        var paymentConfirmation: Boolean? = null,
+        var subscriptionAutorization: Boolean? = null,
+    )
+
+    data class PolicyStatusSnapshot(
+        val id: String,
+        val status: PolicyStatus,
+        val paymentConfirmation: Boolean?,
+        val subscriptionAutorization: Boolean?,
+        val finishedAt: Instant?,
+        val history: MutableList<StatusHistory>
+    )
+
 }

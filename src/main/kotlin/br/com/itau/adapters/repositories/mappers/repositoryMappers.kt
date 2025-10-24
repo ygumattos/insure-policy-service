@@ -12,6 +12,20 @@ import br.com.itau.domain.enums.PolicyStatus
 import java.util.UUID
 
 object repositoryMappers {
+    fun PolicyRequestEntity.toSnapshot(): PolicyRequest.PolicyStatusSnapshot =
+        PolicyRequest.PolicyStatusSnapshot (
+            id = this.id,
+            status = PolicyStatus.valueOf(this.status),
+            paymentConfirmation = this.paymentConfirmation,
+            subscriptionAutorization = this.subscriptionAutorization,
+            finishedAt = this.finishedAt,
+            history = this.statusHistory.map {
+                StatusHistory(
+                    status = PolicyStatus.valueOf(it.status),
+                    timestamp = it.changedAt
+                )
+            }.toMutableList()
+        )
     fun PolicyRequestEntity.toDomain(): PolicyRequest {
         return PolicyRequest(
             id = this.id,
@@ -33,7 +47,11 @@ object repositoryMappers {
                     status = PolicyStatus.valueOf(it.status),
                     timestamp = it.changedAt
                 )
-            }.toMutableList()
+            }.toMutableList(),
+            validatedFlags = PolicyRequest.Flags(
+                paymentConfirmation = this.paymentConfirmation,
+                subscriptionAutorization = this.subscriptionAutorization
+            )
         )
     }
 
@@ -50,7 +68,9 @@ object repositoryMappers {
             status = this.status.toString(),
             createdAt = this.createdAt,
             finishedAt = this.finishedAt,
-            classification = this.classification?.toString()
+            classification = this.classification?.toString(),
+            paymentConfirmation = this.validatedFlags.paymentConfirmation,
+            subscriptionAutorization = this.validatedFlags.subscriptionAutorization
         )
 
         this.coverages.forEach { (coverageName, coverageValue) ->

@@ -1,39 +1,53 @@
-### IntelliJ IDEA ###
+# === Kotlin/Java + Gradle ===
+.gradle/
+build/
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+!gradle/wrapper/       # mantém o wrapper
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+!gradlew
+!gradlew.bat
 
-### Kotlin ###
-.kotlin
+# Relatórios/artefatos de testes
+**/build/reports/
+**/build/test-results/
+**/build/classes/
+**/build/tmp/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
+# VS Code (se usar)
 .vscode/
 
-### Mac OS ###
-.DS_Store
+# Logs
+*.log
+logs/
+**/build/logs/
 
-./gradlew
-./gradlew.bat
-./insure-policy-service-test.iml
-./build/*
-./.idea
-./.gradle
+# SO/Editor
+.DS_Store
+Thumbs.db
+
+# Docker
+**/.env
+.env.*
+!.env.example
+# Compose artefacts (se algum for gerado)
+**/.docker/
+**/docker-data/
+
+# WireMock (mantenha mappings/__files versionados!)
+# Se gerar artefatos temporários, ignore-os assim:
+wiremock/**/cache/
+wiremock/**/tmp/
+
+# Configs geradas em runtime
+**/application-local.yml
+**/application-*.local.yml
+
+# IntelliJ run configs (opcional manter)
+# .idea/runConfigurations/  # comente esta linha se quiser versionar runs
