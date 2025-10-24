@@ -1,7 +1,5 @@
 package br.com.itau.adapters.clients.fraud
 
-import br.com.itau.adapters.config.RestTemplateConfig
-import br.com.itau.domain.enums.CustomerClassification
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
