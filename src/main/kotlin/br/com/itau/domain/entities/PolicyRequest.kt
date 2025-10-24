@@ -77,9 +77,6 @@ class PolicyRequest(
     fun canBeCancelled(): Boolean =
         status != PolicyStatus.APPROVED && status != PolicyStatus.REJECTED && status != PolicyStatus.CANCELLED
 
-    fun isFinalState(): Boolean =
-        status == PolicyStatus.APPROVED || status == PolicyStatus.REJECTED || status == PolicyStatus.CANCELLED
-
     data class Flags(
         var paymentConfirmation: Boolean? = null,
         var subscriptionAutorization: Boolean? = null,

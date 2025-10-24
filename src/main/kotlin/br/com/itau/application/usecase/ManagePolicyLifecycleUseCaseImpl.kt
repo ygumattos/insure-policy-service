@@ -2,7 +2,7 @@ package br.com.itau.application.usecase
 
 import br.com.itau.application.common.logging.Logging
 import br.com.itau.application.ports.inputs.EvaluatePolicyUseCase
-import br.com.itau.application.ports.inputs.InsureReceivedUseCase
+import br.com.itau.application.ports.inputs.ManagePolicyLifecycleUseCase
 import br.com.itau.application.ports.inputs.PolicyStatusUseCase
 import br.com.itau.application.ports.outputs.FraudAnalysis
 import br.com.itau.application.ports.outputs.PolicyRequestRepository
@@ -14,13 +14,13 @@ import br.com.itau.application.exceptions.PolicyExceptions.*
 import br.com.itau.application.ports.outputs.PolicyStatusChangedEventProducer
 
 @Service
-class InsureReceivedUseCaseImpl(
+class ManagePolicyLifecycleUseCaseImpl(
     private val fraudAnalysis: FraudAnalysis,
     private val policyRequestRepository: PolicyRequestRepository,
     private val evaluatePolicyUseCase: EvaluatePolicyUseCase,
     private val policyStatusUseCase: PolicyStatusUseCase,
     private val policyStatusChangedEventProducer: PolicyStatusChangedEventProducer
-) : InsureReceivedUseCase, Logging {
+) : ManagePolicyLifecycleUseCase, Logging {
     
     override fun create(command: PolicyCommand): PolicyRequest {
         log.info("Starting policy creation for customer: {}", command.customerId)
@@ -69,16 +69,12 @@ class InsureReceivedUseCaseImpl(
             }
         }
     }
+
     override fun getById(policyRequestId: String): PolicyRequest {
         log.info("Fetching policy request with ID: {}", policyRequestId)
 
         return try {
-            policyRequestRepository.findById(policyRequestId)?.also {
-                log.debug("Policy request found: {}", it.id)
-            } ?: run {
-                log.warn("Policy request not found with ID: {}", policyRequestId)
-                throw PolicyNotFoundException("Policy request not found with id: $policyRequestId")
-            }
+            findPolicyById(policyRequestId)
         } catch (e: IllegalArgumentException) {
             log.warn("Invalid policy request ID format: {}", policyRequestId)
             throw PolicyNotFoundException("Invalid policy request ID format: $policyRequestId", e)
@@ -90,4 +86,41 @@ class InsureReceivedUseCaseImpl(
         }
     }
 
+    override fun cancel(policyRequestId: String) {
+        log.info("cancel request received id={}", policyRequestId)
+
+        val policy = findPolicyById(policyRequestId)
+
+        if (!policy.canBeCancelled()) {
+            log.info(
+                "cancel ignored - invalid state id={} status={}",
+                policyRequestId, policy.status
+            )
+            throw PolicyInvalidStateException(
+                "Policy cannot be cancelled from state ${policy.status}"
+            )
+        }
+
+        val beforeStatus = policy.status
+        val cancelled = policyStatusUseCase.cancel(policy)
+
+        policyRequestRepository.save(cancelled)
+
+        log.info(
+            "policy cancelled id={} from={} to={} finishedAt={}",
+            policyRequestId, beforeStatus, cancelled.status, cancelled.finishedAt
+        )
+        log.debug("policy cancelled payload id={} history-size={}", policyRequestId, cancelled.history.size)
+
+        policyStatusChangedEventProducer.publish(policy.createSnapShot())
+        log.info("Policy send to StatusChanged queue successfully. ID: {}", policy.id)
+    }
+
+    private fun findPolicyById(id: String): PolicyRequest =
+        policyRequestRepository.findById(id)
+            ?.also { log.debug("policy loaded id={} status={}", it.id, it.status) }
+            ?: run {
+                log.warn("policy not found id={}", id)
+                throw PolicyNotFoundException("Policy request not found with id: $id")
+            }
 }

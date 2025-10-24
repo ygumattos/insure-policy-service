@@ -5,5 +5,6 @@ class PolicyExceptions {
     class PolicyCreationException(message: String, cause: Throwable? = null) : PolicyException(message, cause)
     class PolicyNotFoundException(message: String, cause: Throwable? = null) : PolicyException(message, cause)
     class PolicyRetrievalException(message: String, cause: Throwable? = null) : PolicyException(message, cause)
+    class PolicyInvalidStateException(message: String, cause: Throwable? = null) : PolicyException(message, cause)
 
 }

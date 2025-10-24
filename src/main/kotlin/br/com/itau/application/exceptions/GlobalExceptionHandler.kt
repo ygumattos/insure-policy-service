@@ -2,6 +2,8 @@ package br.com.itau.application.exceptions
 
 import br.com.itau.application.common.logging.Logging
 import br.com.itau.application.exceptions.PolicyExceptions.*
+import jakarta.servlet.http.HttpServletRequest
+import org.apache.kafka.common.requests.ApiError
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -37,6 +39,13 @@ class GlobalExceptionHandler : Logging {
         log.error("Unexpected error: {}", e.message, e)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred"))
+    }
+
+    @ExceptionHandler(PolicyInvalidStateException::class)
+    fun handleInvalidState(e: PolicyInvalidStateException): ResponseEntity<ErrorResponse> {
+        log.error("Policy invalid state: {}", e.message, e)
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(ErrorResponse("POLICY_INVALID_STATE", e.message ?: "Policy with invalid state"))
     }
 
     data class ErrorResponse(
