@@ -40,7 +40,6 @@ dependencies {
     // Spring Kafka
     implementation("org.springframework.kafka:spring-kafka")
 
-    // Testcontainers Kafka (p/ testes de integração, se quiser usar depois)
     testImplementation("org.testcontainers:kafka:1.20.1")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -49,7 +48,8 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("org.assertj:assertj-core:3.24.2")
-    testImplementation("com.ninja-squad:springmockk:4.0.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.3")
+    testImplementation("org.wiremock:wiremock-standalone:3.9.1")
 }
 
 tasks.withType<Test> {

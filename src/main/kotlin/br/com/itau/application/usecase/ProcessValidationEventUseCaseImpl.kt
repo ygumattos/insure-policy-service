@@ -34,34 +34,36 @@ class ProcessValidationEventUseCaseImpl(
         }
 
         val now = Instant.now()
-        val newStatus =
-            when (command.kind) {
-                PAYMENT ->
-                    if (!command.value) PolicyStatus.REJECTED
-                    else if (snapshot.subscriptionAutorization == true) PolicyStatus.APPROVED
-                    else PolicyStatus.PENDING
-                SUBSCRIPTION ->
-                    if (!command.value) PolicyStatus.REJECTED
-                    else if (snapshot.paymentConfirmation == true) PolicyStatus.APPROVED
-                    else PolicyStatus.PENDING
-            }
-
-        val dateFinishAt = if (newStatus == PolicyStatus.PENDING) null else now
-
         val snapshotUpdated =
             when (command.kind) {
-                PAYMENT -> {
-                    repository.updatePaymentAndStatus(command.policyId, true, newStatus.name, dateFinishAt)
-                    snapshot.copy(status = newStatus, paymentConfirmation = true, finishedAt = dateFinishAt)
-                }
-                SUBSCRIPTION ->  {
-                    repository.updateSubscriptionAndStatus(command.policyId, true, newStatus.name, dateFinishAt)
-                    snapshot.copy(status = newStatus, subscriptionAutorization = true, finishedAt = dateFinishAt)
-                }
+                PAYMENT ->
+                    if (!command.value) snapshot.copy(status = PolicyStatus.REJECTED, paymentConfirmation = false, finishedAt = now)
+                    else if (snapshot.subscriptionAutorization == true) snapshot.copy(status = PolicyStatus.APPROVED, paymentConfirmation = true, finishedAt = now)
+                    else snapshot.copy(status = PolicyStatus.PENDING, paymentConfirmation = true, finishedAt = null)
+                SUBSCRIPTION ->
+                    if (!command.value) snapshot.copy(status = PolicyStatus.REJECTED, subscriptionAutorization = false, finishedAt = now)
+                    else if (snapshot.paymentConfirmation == true) snapshot.copy(status = PolicyStatus.APPROVED, subscriptionAutorization = true, finishedAt = now)
+                    else snapshot.copy(status = PolicyStatus.PENDING, subscriptionAutorization = true, finishedAt = null)
             }
 
-        repository.appendStatusHistory(command.policyId, newStatus.name, now)
-        log.info("status changed id={} -> {}", command.policyId, newStatus)
+        when (command.kind) {
+            PAYMENT -> repository.updatePaymentAndStatus(
+                command.policyId,
+                snapshotUpdated.paymentConfirmation,
+                snapshotUpdated.status.name,
+                snapshotUpdated.finishedAt
+            )
+            SUBSCRIPTION -> repository.updateSubscriptionAndStatus(
+                command.policyId,
+                snapshotUpdated.subscriptionAutorization,
+                snapshotUpdated.status.name,
+                snapshotUpdated.finishedAt
+            )
+
+        }
+
+        repository.appendStatusHistory(command.policyId, snapshotUpdated.status.name, now)
+        log.info("status changed id={} -> {}", command.policyId, snapshotUpdated.status)
 
         policyStatusChangedEventProducer.publish(snapshotUpdated)
         log.info("Policy send to StatusChanged queue successfully. ID: {}", snapshot.id)
